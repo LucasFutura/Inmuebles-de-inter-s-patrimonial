@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atributos en inmuebles de interés patrimonial de la ciudad de Valdivia</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: row; /* Disposición horizontal */
+            justify-content: center;
+            margin: 20px;
+            gap: 20px;
+        }
+        .operations {
+            width: 300px; /* Ancho para las operaciones */
+        }
+        .results {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        .image-preview {
+            text-align: center;
+        }
+        .image-preview img {
+            max-width: 300px;
+            height: auto;
+            border: 1px solid #ccc;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="operations">
+        <h1>Atributos en inmuebles de interés patrimonial de la ciudad de Valdivia</h1>
+        <p>Selecciona los atributos para filtrar:</p>
+        <div class="filters" id="filters">
+            <!-- Aquí se generarán los checkboxes dinámicamente -->
+        </div>
+        <button id="filterButton">Filtrar</button>
+        <div class="results" id="results">
+            <!-- Aquí se mostrarán los resultados filtrados -->
+            <strong>Resultados:</strong>
+            <ul id="resultsList"></ul>
+        </div>
+    </div>
+    <div class="image-preview">
+        <div id="image-container">
+            <!-- La imagen predeterminada se mostrará aquí -->
+            <img src="https://i.imgur.com/aLbv4Ty.jpeg" alt="Imagen predeterminada" />
+        </div>
+    </div>
+
+    <script>
+        // Base de datos predefinida en formato JSON
+        const dataMatrix = [
+            ["01", "", "", "1", "", "", "", "", "", "", "", "1", "1", "1"],
+            ["02", "1", "", "", "", "", "", "", "", "", "", "1", "1", "1"],
+            ["03", "", "", "", "", "", "", "", "", "", "", "1", "", ""],
+            ["04", "1", "1", "", "", "", "", "1", "", "1", "", "1", "1", ""],
+            ["05", "", "", "", "", "", "", "", "", "", "", "1", "", ""]
+        ];
+        const attributes = [
+            "Zócalo", "Veranda / Corredor exterior", "Loggia", "Terraza",
+            "Balcón", "Ochavo / Chaflán", "Mansarda", "Soberado", "Buhardilla",
+            "Cubierta Abatida", "Elemento Disruptivo", "Decorados Exteriores", "Ornamentos de Ventana"
+        ];
+        const elements = dataMatrix.map(row => row[0]); // IDs de los inmuebles
+
+        // Cuando cargue la página, genera los checkboxes
+        document.addEventListener('DOMContentLoaded', () => {
+            generateCheckboxes();
+        });
+
+        // Genera los checkboxes dinámicamente
+        function generateCheckboxes() {
+            const filtersDiv = document.getElementById('filters');
+            filtersDiv.innerHTML = "<strong>Selecciona los atributos:</strong><br>";
+            
+            attributes.forEach((attr, index) => {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `attribute-${index}`;
+                checkbox.dataset.index = index;
+
+                const label = document.createElement('label');
+                label.for = `attribute-${index}`;
+                label.textContent = attr;
+
+                filtersDiv.appendChild(checkbox);
+                filtersDiv.appendChild(label);
+                filtersDiv.appendChild(document.createElement('br'));
+            });
+        }
+
+        // Filtra los datos basados en los checkboxes seleccionados
+        document.getElementById('filterButton').addEventListener('click', () => {
+            const selectedAttributes = [];
+            document.querySelectorAll('input[type=checkbox]:checked').forEach(checkbox => {
+                selectedAttributes.push(parseInt(checkbox.dataset.index));
+            });
+
+            const filteredElements = elements.filter((_, elementIndex) => {
+                return selectedAttributes.every(attrIndex => dataMatrix[elementIndex][attrIndex + 1] === "1");
+            });
+
+            displayResults(filteredElements);
+        });
+
+        // Muestra los resultados filtrados
+        function displayResults(results) {
+            const resultsList = document.getElementById('resultsList');
+            resultsList.innerHTML = '';
+            if (results.length === 0) {
+                resultsList.innerHTML = '<li>No se encontraron inmuebles.</li>';
+            } else {
+                results.forEach(result => {
+                    const li = document.createElement('li');
+                    li.textContent = result;
+                    resultsList.appendChild(li);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
